@@ -71,3 +71,40 @@ plt.scatter(test_input[:, 0], test_input[:, 1])
 plt.xlabel("length")
 plt.ylabel("weight")
 plt.show()
+
+# 마리아DB에 데이터 저장
+train_length = train_input[:, 0]
+train_weight = train_input[:, 1]
+
+test_length = test_input[:, 0]
+test_weight = test_input[:, 1]
+
+
+print(train_length)
+print(train_weight)
+
+engine = db.create_engine(
+    "mariadb+mariadbconnector://python:python1234@127.0.0.1:3306/pythondb")
+
+trains = np.column_stack((train_target, train_length, train_weight))
+tests = np.column_stack((test_target, test_length, test_weight))
+
+train_dataFrame = pd.DataFrame(
+    trains, columns=["train_target", "train_length", "train_weight"])
+
+test_dataFrame = pd.DataFrame(
+    tests, columns=["test_target", "test_length", "test_weight"])
+
+
+def trainInsert():
+    trains = train_dataFrame
+    trains.to_sql("train", engine, index=False, if_exists="replace")
+
+
+def testInsert():
+    tests = test_dataFrame
+    tests.to_sql("test", engine, index=False, if_exists="replace")
+
+
+trainInsert()
+testInsert()
